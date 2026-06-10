@@ -4,14 +4,21 @@
   #:use-module (nonguix build-system chromium-binary)
   #:use-module ((nonguix licenses) #:prefix license:)
   #:use-module (gnu packages certs)
-  #:use-module (gnu packages fonts))
+  #:use-module (gnu packages fonts)
+  #:use-module (gnu packages nss))
 
-(define-public antigravity
+;; Local non-substitutable binary directory.
+;; This is intentionally not fetched from upstream; the binary is not
+;; redistributed through this channel.
+(define %antigravity-source-directory
+  "/home/user1/src/vendor/Antigravity-x64")
+
+(define-public omiya-antigravity
   (package
-    (name "antigravity")
+    (name "omiya-antigravity")
     (version "2.0.11")
     (source
-     (local-file "/home/user1/src/vendor/Antigravity-x64"
+     (local-file %antigravity-source-directory
                  "antigravity-source"
                  #:recursive? #t))
     (supported-systems '("x86_64-linux"))
