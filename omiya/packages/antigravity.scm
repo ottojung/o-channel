@@ -1,4 +1,4 @@
-(define-module (my packages antigravity)
+(define-module (omiya packages antigravity)
   #:use-module (guix packages)
   #:use-module (guix gexp)
   #:use-module (nonguix build-system chromium-binary)
