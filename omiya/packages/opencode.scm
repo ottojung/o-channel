@@ -28,6 +28,8 @@
       ("gcc" ,gcc "lib")))
    (arguments
     (list
+     #:validate-runpath? #f
+
      #:install-plan
      #~'(("opencode" "bin/"))
 
