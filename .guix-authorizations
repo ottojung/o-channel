@@ -1,0 +1,6 @@
+;; Channel authorizations for o-channel.
+
+(authorizations
+ (version 0)
+ (("8B9B E811 5DCD EEFA 3E24 D5ED B851 B4F4 C06C 04D6"
+   (name "Otto Jung"))))
