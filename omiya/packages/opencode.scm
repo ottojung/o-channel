@@ -28,7 +28,13 @@
       ("gcc" ,gcc "lib")))
    (arguments
     (list
+     ;; The upstream binary has unusual ELF metadata that confuses Guix's
+     ;; runpath validator: it reports empty DT_NEEDED entries.
      #:validate-runpath? #f
+
+     ;; Do not strip the vendor binary. Its ELF layout is unusual, and strip
+     ;; warns about `.dynstr' not being in a segment.
+     #:strip-binaries? #f
 
      #:install-plan
      #~'(("opencode" "bin/"))
