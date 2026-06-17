@@ -7,7 +7,7 @@
   #:use-module (srfi srfi-1)
   #:export (lookup-cargo-inputs))
 
-(define commit "5be647584013d45b169e5b8ec3c7c4022c5aae6b")
+(define commit "c7cef5430cb30102c63f1257ee999405b67c656e")
 
 ;;; crate-source definitions for all transitive dependencies
 (define rust-aho-corasick-1.1.4
@@ -659,7 +659,7 @@
        (file-name (git-file-name "purgery" version))
        (sha256
         (base32
-         "17fnxkb6wliwc4mzxik1danlrhnw62caprag41dsd9f2285f1dbm"))))
+         "12ibkk6vx3znr90i9bcr0kiyy1ww9ijp46g19b6ansc92qgkpprb"))))
     (supported-systems '("x86_64-linux"))
     (build-system cargo-build-system)
     (arguments
