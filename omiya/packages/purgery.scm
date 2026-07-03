@@ -106,6 +106,10 @@
   (crate-source "fastrand" "2.4.1"
                 "1mnqxxnxvd69ma9mczabpbbsgwlhd6l78yv3vd681453a9s247wz"))
 
+(define rust-filetime-0.2.29
+  (crate-source "filetime" "0.2.29"
+                "0napyyfccb26r7fyh9hg7ixrh4vph9h7y7k4iv1j19phqwrpla2w"))
+
 (define rust-foldhash-0.1.5
   (crate-source "foldhash" "0.1.5"
                 "1wisr1xlc2bj7hk4rgkcjkz3j2x4dhd1h9lwk7mj8p71qpdgbi6r"))
@@ -541,8 +545,9 @@
          rust-digest-0.10.7
          rust-equivalent-1.0.2
          rust-errno-0.3.14
-         rust-fastrand-2.4.1
-         rust-foldhash-0.1.5
+          rust-fastrand-2.4.1
+          rust-filetime-0.2.29
+          rust-foldhash-0.1.5
          rust-futures-core-0.3.32
          rust-futures-task-0.3.32
          rust-futures-util-0.3.32
