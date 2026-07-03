@@ -23,7 +23,3 @@ Add the following to `~/.config/guix/channels.scm`:
 guix build -L . omiya-hello
 guix search -L . omiya-hello
 ```
-
-## Authentication
-
-Channel authentication is intentionally not configured yet.
