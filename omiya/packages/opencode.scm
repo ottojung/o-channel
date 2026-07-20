@@ -10,18 +10,18 @@
 (define-public omiya-opencode
   (package
    (name "omiya-opencode")
-   (version "1.17.3")
-   (source
-    (origin
-     (method url-fetch)
-     (uri
-      (string-append
-       "https://github.com/anomalyco/opencode/releases/download/v"
-       version
-       "/opencode-linux-x64.tar.gz"))
-     (sha256
-      (base32
-       "0z8a05rbvyrairzpll9l4acza5x3l0hpsffk3k56mx8z5j527gfl"))))
+    (version "1.18.4")
+    (source
+     (origin
+      (method url-fetch)
+      (uri
+       (string-append
+        "https://github.com/anomalyco/opencode/releases/download/v"
+        version
+        "/opencode-linux-x64.tar.gz"))
+      (sha256
+       (base32
+        "0x51admqi7dlik7d5kz21g7zjgbh70zxdykwpf4d691jzg1n7d5s"))))
    (build-system binary-build-system)
    (inputs
     `(("glibc" ,glibc)
