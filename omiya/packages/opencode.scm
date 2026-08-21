@@ -10,7 +10,7 @@
 (define-public omiya-opencode
   (package
    (name "omiya-opencode")
-     (version "1.18.21")
+    (version "1.18.21")
     (source
      (origin
       (method url-fetch)
@@ -21,7 +21,7 @@
         "/opencode-linux-x64.tar.gz"))
       (sha256
        (base32
-          "12mkjnljc15bk4qhwivb79ymphhwshald418lf8mgfqkfvnw646r"))))
+         "12mkjnljc15bk4qhwivb79ymphhwshald418lf8mgfqkfvnw646r"))))
    (build-system binary-build-system)
    (inputs
     `(("glibc" ,glibc)
