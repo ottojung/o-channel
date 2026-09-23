@@ -3,4 +3,6 @@
 (authorizations
  (version 0)
  (("8B9B E811 5DCD EEFA 3E24 D5ED B851 B4F4 C06C 04D6"
+   (name "Otto Jung"))
+  ("08AF 2726 387B D4A4 C87D F182 1BED DF96 D7B1 BA2B"
    (name "Otto Jung"))))
