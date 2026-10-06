@@ -10,17 +10,17 @@
 (define-public omiya-miyka
   (package
     (name "omiya-miyka")
-    (version "2.5.0")
+    (version "2.5.0-1.a3764a3")
     (source
      (origin
        (method git-fetch)
        (uri (git-reference
              (url "https://github.com/ottojung/miyka")
-             (commit "v2.5.0")
+             (commit "a3764a39605c448ece92a8d5b44c1e916dda2604")
              (recursive? #t)))
        (sha256
         (base32
-         "035s20j0mw9yfwig2n7k7kg1b7kw7abs7gz1b52bkh1y2xwdj18l"))
+         "1861l7j7n8fy2l394qch6c0gxrnhh55z5z45xcsygm2k17fbh3vf"))
        (file-name (git-file-name "miyka" version))))
     (build-system gnu-build-system)
     (arguments
@@ -32,6 +32,7 @@
           (delete 'configure)
           (delete 'build)
           (delete 'check)
+          (delete 'strip)
           (add-before 'install 'fix-makefile
             (lambda _
               (mkdir-p "root/dependencies/euphrates")
@@ -61,7 +62,57 @@
           (replace 'install
             (lambda* (#:key (make-flags '()) #:allow-other-keys)
               (chdir "root")
-              (apply invoke "make" "install" make-flags))))))
+              (apply invoke "make" "install" make-flags)))
+          (add-after 'install 'compile-miyka
+            (lambda _
+              (let* ((launcher (string-append #$output "/bin/miyka"))
+                     (cache-home (string-append (getcwd) "/.miyka-cache"))
+                     (cache-root (string-append cache-home "/guile/ccache"))
+                     (compiled-cache
+                      (string-append #$output "/lib/miyka/guile-ccache"))
+                     (module-cache
+                      (string-append compiled-cache "/modules"))
+                     (source-cache
+                      (string-append compiled-cache #$output "/share/miyka/src")))
+                (setenv "XDG_CACHE_HOME" cache-home)
+                (setenv "MIYKA_GUIX_EXECUTABLE" "/nonexistent/guix")
+                (substitute* launcher
+                  ((" guile --r7rs ")
+                   (string-append
+                    " " #$(file-append guile-3.0 "/bin/guile")
+                    " --fresh-auto-compile --r7rs ")))
+                (invoke "sh" launcher "--version")
+                (invoke
+                 "sh" "-c"
+                 (string-append
+                  "set -- " cache-root "/*; "
+                  "test \"$#\" -eq 1; "
+                  "mkdir -p " compiled-cache "; "
+                  "cp -a \"$1/.\" " compiled-cache))
+                (for-each
+                 (lambda (file)
+                   (let* ((relative
+                           (substring
+                            file (+ 1 (string-length source-cache))))
+                          (target
+                           (string-append
+                            module-cache "/"
+                            (substring
+                             relative 0 (- (string-length relative) 7))
+                            ".go")))
+                     (mkdir-p (dirname target))
+                     (rename-file file target)))
+                 (find-files source-cache "\\.sld\\.go$"))
+                (substitute* launcher
+                  ((" --fresh-auto-compile --r7rs ")
+                   (string-append
+                    " --no-auto-compile -C " module-cache
+                    " --r7rs ")))
+                (substitute* launcher
+                  (((string-append
+                     " -s \"" #$output
+                     "/share/miyka/src/miyka/miyka.sld\" "))
+                   " -c '(import (miyka miyka))' "))))))))
     (inputs
      (list guile-3.0))
     (native-inputs

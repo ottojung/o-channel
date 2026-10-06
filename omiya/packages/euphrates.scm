@@ -10,16 +10,16 @@
 (define-public omiya-euphrates
   (package
     (name "omiya-euphrates")
-    (version "0.0.0")
+    (version "0.0.0-1.6d994d5")
     (source
      (origin
        (method git-fetch)
        (uri (git-reference
              (url "https://github.com/ottojung/euphrates")
-             (commit "8f656093e43b486271462cb0820ce9eb7ad25fb5")))
+             (commit "6d994d5d6e9eff0409b2fa6a4fe8247fe5bda633")))
        (sha256
         (base32
-         "0fl1dsmly77p811jjkb8s15w8vxx4mn32cbwc26xshy315pi9gcg"))
+         "0ny2war29i5qr5qxq3f8n9cg0ryqisbdccrp6ixxydkslfrj95vg"))
        (file-name (git-file-name "euphrates" version))))
     (build-system gnu-build-system)
     (arguments
