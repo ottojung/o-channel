@@ -10,7 +10,7 @@
 (define-public omiya-miyka
   (package
     (name "omiya-miyka")
-    (version "2.5.0-1.a3764a3")
+    (version "2.5.0-2.a3764a3")
     (source
      (origin
        (method git-fetch)
@@ -112,7 +112,21 @@
                   (((string-append
                      " -s \"" #$output
                      "/share/miyka/src/miyka/miyka.sld\" "))
-                   " -c '(import (miyka miyka))' "))))))))
+                   " -c '(import (miyka miyka))' "))
+                ;; Resolving Guix from precompiled Miyka can deadlock in
+                ;; Guile subprocess setup.  Resolve it in the launcher while
+                ;; honoring an explicit MIYKA_GUIX_EXECUTABLE override.
+                (substitute* launcher
+                  (("MIYKA_TEMPORARY_CONTINUATION=")
+                   (string-append
+                    "if test -z \"${MIYKA_GUIX_EXECUTABLE+x}\"; then\n"
+                    "  MIYKA_GUIX_EXECUTABLE=$(command -v guix 2>/dev/null) || {\n"
+                    "    echo 'miyka: guix executable not found in PATH' >&2\n"
+                    "    exit 127\n"
+                    "  }\n"
+                    "  export MIYKA_GUIX_EXECUTABLE\n"
+                    "fi\n"
+                    "MIYKA_TEMPORARY_CONTINUATION=")))))))))
     (inputs
      (list guile-3.0))
     (native-inputs
