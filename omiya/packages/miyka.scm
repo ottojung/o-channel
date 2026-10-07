@@ -66,14 +66,15 @@
           (add-after 'install 'compile-miyka
             (lambda _
               (let* ((launcher (string-append #$output "/bin/miyka"))
+                     (source-dir
+                      (string-append #$output "/share/miyka/src"))
                      (cache-home (string-append (getcwd) "/.miyka-cache"))
                      (cache-root (string-append cache-home "/guile/ccache"))
-                     (compiled-cache
-                      (string-append #$output "/lib/miyka/guile-ccache"))
                      (module-cache
-                      (string-append compiled-cache "/modules"))
-                     (source-cache
-                      (string-append compiled-cache #$output "/share/miyka/src")))
+                      (string-append
+                       #$output "/lib/miyka/guile-ccache/modules")))
+                ;; Use one real Miyka invocation to discover the complete
+                ;; transitive set of R7RS libraries required at runtime.
                 (setenv "XDG_CACHE_HOME" cache-home)
                 (setenv "MIYKA_GUIX_EXECUTABLE" "/nonexistent/guix")
                 (substitute* launcher
@@ -82,27 +83,62 @@
                     " " #$(file-append guile-3.0 "/bin/guile")
                     " --fresh-auto-compile --r7rs ")))
                 (invoke "sh" launcher "--version")
-                (invoke
-                 "sh" "-c"
-                 (string-append
-                  "set -- " cache-root "/*; "
-                  "test \"$#\" -eq 1; "
-                  "mkdir -p " compiled-cache "; "
-                  "cp -a \"$1/.\" " compiled-cache))
-                (for-each
-                 (lambda (file)
-                   (let* ((relative
-                           (substring
-                            file (+ 1 (string-length source-cache))))
-                          (target
-                           (string-append
-                            module-cache "/"
-                            (substring
-                             relative 0 (- (string-length relative) 7))
-                            ".go")))
-                     (mkdir-p (dirname target))
-                     (rename-file file target)))
-                 (find-files source-cache "\\.sld\\.go$"))
+                (let* ((marker (string-append source-dir "/"))
+                       (auto-compiled
+                        (find-files cache-root "\\.sld\\.go$"))
+                       (source-files
+                        (map
+                         (lambda (compiled)
+                           (let ((position
+                                  (string-contains compiled marker)))
+                             (unless position
+                               (error
+                                "unexpected Miyka auto-cache path"
+                                compiled))
+                             (let* ((relative-go
+                                     (substring
+                                      compiled
+                                      (+ position
+                                         (string-length marker))))
+                                    (relative
+                                     (substring
+                                      relative-go
+                                      0
+                                      (- (string-length relative-go) 7))))
+                               (string-append
+                                source-dir "/" relative ".sld"))))
+                         auto-compiled)))
+                  (when (null? source-files)
+                    (error "Miyka did not auto-compile any R7RS libraries"))
+                  ;; Guile's auto-compiler can emit a providers.go that
+                  ;; deadlocks when loaded in a fresh process.  Recompile the
+                  ;; discovered libraries explicitly with guild instead.
+                  (setenv
+                   "XDG_CACHE_HOME"
+                   (string-append (getcwd) "/.guild-cache"))
+                  (setenv "GUILE_AUTO_COMPILE" "0")
+                  (for-each
+                   (lambda (source)
+                     (let* ((relative-sld
+                             (substring
+                              source (+ 1 (string-length source-dir))))
+                            (relative
+                             (substring
+                              relative-sld
+                              0
+                              (- (string-length relative-sld) 4)))
+                            (target
+                             (string-append
+                              module-cache "/" relative ".go")))
+                       (mkdir-p (dirname target))
+                       (invoke
+                        #$(file-append guile-3.0 "/bin/guild")
+                        "compile"
+                        "--r7rs"
+                        "-L" source-dir
+                        "-o" target
+                        source)))
+                   source-files))
                 (substitute* launcher
                   ((" --fresh-auto-compile --r7rs ")
                    (string-append
