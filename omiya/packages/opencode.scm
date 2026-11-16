@@ -26,7 +26,7 @@
    (build-system binary-build-system)
    (supported-systems '("x86_64-linux"))
    (inputs
-    `(("bash" ,bash-minimal)
+    `(("bash-minimal" ,bash-minimal)
       ("glibc" ,glibc)
       ("gcc" ,gcc "lib")))
    (arguments
@@ -48,7 +48,7 @@
          (add-after 'install 'install-launcher
            (lambda* (#:key inputs #:allow-other-keys)
              (let* ((out #$output)
-                    (bash (assoc-ref inputs "bash"))
+                    (bash (assoc-ref inputs "bash-minimal"))
                     (glibc (assoc-ref inputs "glibc"))
                     (gcc-lib (assoc-ref inputs "gcc"))
                     (target (string-append out "/libexec/opencode"))
@@ -57,7 +57,10 @@
                (call-with-output-file launcher
                  (lambda (port)
                    (format port
-                           "#!~a/bin/sh~%exec ~a/lib/ld-linux-x86-64.so.2 --library-path ~s ~s \"$@\"~%"
+                           (string-append
+                            "#!~a/bin/sh~%"
+                            "exec ~a/lib/ld-linux-x86-64.so.2"
+                            " --library-path ~s ~s \"$@\"~%")
                            bash glibc
                            (string-append glibc "/lib:" gcc-lib "/lib")
                            target)))
