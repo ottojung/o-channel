@@ -31,8 +31,8 @@
       ("gcc" ,gcc "lib")))
    (arguments
     (list
-     ;; The bundled runtime crashes if an RPATH is added to its ELF.
-     ;; Keep the executable unmodified.
+     ;; Adding an RPATH crashes the bundled runtime.  Patch only the
+     ;; ELF interpreter, then exec the binary with Guix libraries.
      #:validate-runpath? #f
 
      ;; Do not strip the upstream executable.
@@ -42,7 +42,7 @@
      #~'(("opencode" "libexec/"))
 
      #:patchelf-plan
-     #~'()
+     #~'(("opencode"))
      #:phases
      #~(modify-phases %standard-phases
          (add-after 'install 'install-launcher
@@ -59,9 +59,9 @@
                    (format port
                            (string-append
                             "#!~a/bin/sh~%"
-                            "exec ~a/lib/ld-linux-x86-64.so.2"
-                            " --library-path ~s ~s \"$@\"~%")
-                           bash glibc
+                            "export LD_LIBRARY_PATH=~s~%"
+                            "exec ~s \"$@\"~%")
+                           bash
                            (string-append glibc "/lib:" gcc-lib "/lib")
                            target)))
                (chmod launcher #o755)))))))
